@@ -7,7 +7,7 @@ from PIL import Image, ImageOps
 from pydantic import BaseModel, Field, ValidationError
 
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://127.0.0.1:11434")
-MODEL = os.getenv("OLLAMA_MODEL", "gemma4:e2b")
+MODEL = os.getenv("OLLAMA_MODEL","gemma4:e2b-it-qat")
 MAX_SIDE = int(os.getenv("MAX_IMAGE_SIDE", "896"))
 
 PROMPT = """You are a careful field botanist's assistant. Look at the photo and identify the plant or flower.

@@ -7,6 +7,7 @@ const send = (url, method, body) =>
   fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }).then(parse);
 
 export const api = {
+  health: () => fetch('/api/health').then(parse),
   identify(file, pos) {
     const f = new FormData();
     f.append('image', file);

@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body { width: 100vw; margin: 0; padding: 0; }
+  body { overscroll-behavior: none; min-height: max(884px, 100dvh); }
+  .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .pt-safe { padding-top: env(safe-area-inset-top, 0px); }
+  main > :first-child { margin-top: 0 !important; }
+  main > :last-child { margin-bottom: 0 !important; }
+}
+::-webkit-scrollbar { display: none; }
+.no-scrollbar, .scrollbar-none { scrollbar-width: none; -ms-overflow-style: none; }
+.leaflet-container { font-family: inherit; background: #f6f3ec; }
+.leaflet-div-icon { background: none; border: 0; }
