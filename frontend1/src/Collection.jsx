@@ -145,9 +145,14 @@ export default function Collection({ go }) {
                     <span className="material-symbols-outlined text-[15px] text-primary">history_edu</span>
                     <span>First found {shortDate(sp.firstSeenAt)}</span>
                   </div>
+                      <div className="flex items-center gap-3">
+                     <button onClick={() => go('chat', latest?._id)} className="text-secondary font-label-md text-label-md font-semibold flex items-center gap-0.5 hover:underline">
+                       <span className="material-symbols-outlined text-[16px]">forum</span> Ask
+                     </button>
                   <button onClick={() => setOpen({ ...open, [sp._id]: !open[sp._id] })} className="text-primary-container font-label-md text-label-md font-semibold flex items-center gap-0.5 hover:underline">
                     Specimen Sheet <span className="material-symbols-outlined text-[16px]">{open[sp._id] ? 'expand_more' : 'chevron_right'}</span>
                   </button>
+                                       </div>
                 </div>
                 {open[sp._id] && (
                   <div className="bg-surface-container-low rounded-lg p-3 space-y-2 font-body-sm text-body-sm text-on-surface-variant">

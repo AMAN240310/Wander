@@ -19,4 +19,7 @@ export const api = {
   sightings: () => fetch('/api/sightings?confirmed=1').then(parse),
   species: () => fetch('/api/species').then(parse),
   achievements: () => fetch('/api/achievements').then(parse),
+    sighting: (id) => fetch(`/api/sightings/${id}`).then(parse),
+  chat: (id, message) => send(`/api/sightings/${id}/chat`, 'POST', { message }),
+  clearChat: (id) => fetch(`/api/sightings/${id}/chat`, { method: 'DELETE' }).then(parse),
 };

@@ -4,17 +4,22 @@ import MapPage from './MapView.jsx';
 import Collection from './Collection.jsx';
 import Badges from './Badges.jsx';
 import { FILL } from './lib.js';
+import Chat from './Chat.jsx';
 
 const TABS = [
   ['find', 'Find', 'center_focus_strong'],
   ['map', 'Map', 'explore'],
   ['collection', 'Collection', 'filter_vintage'],
   ['badges', 'Badges', 'workspace_premium'],
+  ['chat', 'Ask', 'forum'],
 ];
 
 export default function App() {
   const [tab, setTab] = useState('find');
   const [toast, setToast] = useState(null);
+  const [chatId, setChatId] = useState(null);
+  const go = (t, id) => { setChatId(id || null); setTab(t); };
+  
   const announce = (list) => {
     if (!list?.length) return;
     setToast(list.map((a) => a.title).join(', '));
@@ -49,10 +54,12 @@ export default function App() {
       </header>
 
       <main className="flex flex-col relative w-full pt-16 pb-24 bg-surface min-h-screen">
-        {tab === 'find' && <Find onUnlock={announce} go={setTab} />}
-        {tab === 'map' && <MapPage go={setTab} />}
-        {tab === 'collection' && <Collection go={setTab} />}
+    
+        {tab === 'find' && <Find onUnlock={announce} go={go} />}
+        {tab === 'map' && <MapPage go={go} />}
+        {tab === 'collection' && <Collection go={go} />} 
         {tab === 'badges' && <Badges />}
+        {tab === 'chat' && <Chat id={chatId} go={go} />}
       </main>
 
       <nav className="fixed bottom-0 w-full z-50 pb-safe bg-surface/90 backdrop-blur-xl shadow-[0_-2px_12px_rgba(27,67,50,0.06)]">
@@ -60,7 +67,7 @@ export default function App() {
           {TABS.map(([key, label, icon]) => (
             <button
               key={key}
-              onClick={() => setTab(key)}
+              onClick={() => go(key)}
               aria-current={tab === key ? 'page' : undefined}
               className={`flex flex-col items-center justify-center min-w-[56px] min-h-[48px] px-space-xs transition-colors ${tab === key ? 'text-primary-container font-semibold' : 'text-on-surface-variant'}`}
             >

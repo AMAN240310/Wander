@@ -142,6 +142,48 @@ app.get('/api/achievements', async (_req, res) => {
   const got = new Map((await unlocked.find().toArray()).map((a) => [a.key, a.unlockedAt]));
   res.json(ACHIEVEMENTS.map(({ test, ...a }) => ({ ...a, unlockedAt: got.get(a.key) ?? null })));
 });
+app.get('/api/sightings/:id', async (req, res) => {
+  const id = toId(req.params.id);
+  const s = id && (await sightings.findOne({ _id: id }));
+  s ? res.json(s) : res.status(404).json({ error: 'Sighting not found.' });
+});
+
+// Follow-up questions about one photo. The conversation is stored on the sighting.
+app.post('/api/sightings/:id/chat', async (req, res) => {
+  const id = toId(req.params.id);
+  const s = id && (await sightings.findOne({ _id: id }));
+  if (!s) return res.status(404).json({ error: 'Sighting not found.' });
+  const message = String(req.body.message || '').trim().slice(0, 1000);
+  if (!message) return res.status(400).json({ error: 'Type a question first.' });
+  const history = (s.chat || []).slice(-10).map(({ role, content }) => ({ role, content }));
+  let reply;
+  try {
+    const image = (await fs.readFile(path.join(UPLOADS, path.basename(s.photoPath)))).toString('base64');
+    const r = await fetch(`${AI_URL}/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        image,
+        context: { commonName: s.commonName, scientificName: s.scientificName, confidence: s.confidence, summary: s.summary, features: s.features, lookAlikes: s.lookAlikes },
+        messages: [...history, { role: 'user', content: message }],
+      }),
+    });
+    if (!r.ok) throw new Error((await r.json().catch(() => ({}))).detail || `AI service returned ${r.status}`);
+    reply = (await r.json()).reply;
+  } catch (e) {
+    return res.status(502).json({ error: `Chat failed: ${e.message}` });
+  }
+  const added = [{ role: 'user', content: message, at: new Date() }, { role: 'assistant', content: reply, at: new Date() }];
+  await sightings.updateOne({ _id: id }, { $push: { chat: { $each: added } } });
+  res.json({ reply, chat: [...(s.chat || []), ...added] });
+});
+
+app.delete('/api/sightings/:id/chat', async (req, res) => {
+  const id = toId(req.params.id);
+  if (!id) return res.status(400).json({ error: 'Bad id.' });
+  await sightings.updateOne({ _id: id }, { $unset: { chat: '' } });
+  res.json({ ok: true });
+});
 
 const dist = path.join(here, '../frontend/dist');
 app.use(express.static(dist));

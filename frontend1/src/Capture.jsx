@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, CircleMarker, useMapEvents } from 'react-leaflet';
 import { api } from './api.js';
 import { ago, pct, SOURCE } from './lib.js';
+import { ChatThread } from './Chat.jsx';
 
 const TIPS = [
   'Keep the flower head centered and capture the leaf underside for higher match accuracy.',
@@ -43,6 +44,7 @@ export default function Find({ onUnlock, go }) {
   const [s, setS] = useState(null);
   const [names, setNames] = useState({ commonName: '', scientificName: '' });
   const [pin, setPin] = useState(null);
+  const [ask, setAsk] = useState(false);
 
   const refresh = () => api.sightings().then((l) => { setRecent(l.slice(0, 3)); setTotal(l.length); }).catch(() => {});
   useEffect(() => {
@@ -50,8 +52,7 @@ export default function Find({ onUnlock, go }) {
     refresh();
   }, []);
 
-  const reset = () => { setS(null); setPin(null); setError(''); };
-
+   const reset = () => { setS(null); setPin(null); setError(''); setAsk(false); };
   const onFile = async (e) => {
     const file = e.target.files[0];
     e.target.value = '';
@@ -298,6 +299,11 @@ export default function Find({ onUnlock, go }) {
                 <button disabled={!pin} onClick={savePin} className="w-full h-11 rounded-full bg-surface-container-high text-on-surface font-label-lg text-label-lg disabled:opacity-40">Save this location</button>
               </div>
             )}
+                <button onClick={() => setAsk(!ask)} className="h-11 rounded-full bg-surface-container-high text-on-surface font-label-lg text-label-lg flex items-center justify-center gap-1.5 active:scale-95 transition-transform">
+                 <span className="material-symbols-outlined text-[18px] text-secondary">forum</span>
+                 <span>{ask ? 'Hide questions' : 'Ask a follow-up question'}</span>
+               </button>
+               {ask && <ChatThread id={s._id} />}
 
             <p className="bg-tertiary-fixed text-on-tertiary-fixed rounded-lg p-2.5 font-body-sm text-body-sm flex gap-1.5">
               <span className="material-symbols-outlined text-[16px] shrink-0 mt-0.5">warning</span>
